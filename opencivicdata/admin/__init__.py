@@ -3,6 +3,37 @@ from django.contrib import admin
 from django.template import defaultfilters
 from .. import models
 
+# supply the decorator if it's not there
+def admin_register(*models, **kwargs):
+    """
+    Registers the given model(s) classes and wrapped ModelAdmin class with
+    admin site:
+    @register(Author)
+    class AuthorAdmin(admin.ModelAdmin):
+        pass
+    A kwarg of `site` can be passed as the admin site, otherwise the default
+    admin site will be used.
+    """
+    from django.contrib.admin import ModelAdmin
+    from django.contrib.admin.sites import site, AdminSite
+
+    def _model_admin_wrapper(admin_class):
+        admin_site = kwargs.pop('site', site)
+
+        if not isinstance(admin_site, AdminSite):
+            raise ValueError('site must subclass AdminSite')
+
+        if not issubclass(admin_class, ModelAdmin):
+            raise ValueError('Wrapped class must subclass ModelAdmin.')
+
+        admin_site.register(models, admin_class=admin_class)
+
+        return admin_class
+    return _model_admin_wrapper
+
+if not hasattr(admin, 'register'):
+    admin.register = admin_register
+
 # Helpers ##########
 
 class ModelAdmin(admin.ModelAdmin):
