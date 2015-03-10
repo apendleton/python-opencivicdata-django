@@ -25,7 +25,7 @@ class OCDIDField(models.CharField):
         kwargs['primary_key'] = True
         # get pattern property if it exists, otherwise just return the object (hopefully a string)
         msg = 'ID must match ' + getattr(regex, 'pattern', regex)
-        kwargs['validators'] = [RegexValidator(regex=regex, message=msg, flags=re.U)]
+        kwargs['validators'] = [RegexValidator(regex=regex, message=msg)]
         super(OCDIDField, self).__init__(*args, **kwargs)
 
     def deconstruct(self):
